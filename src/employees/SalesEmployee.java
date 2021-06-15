@@ -7,6 +7,7 @@ public class SalesEmployee implements Employee {
 	private int salesPeriod;
 	private double experienceMultiplier;
 	private double score = 0;
+	private boolean addToReport;
 	
 	public SalesEmployee(String name, int totalSales, int salesPeriod, double experienceMultiplier) {
 		this.name = name;
@@ -15,12 +16,14 @@ public class SalesEmployee implements Employee {
 		this.experienceMultiplier = experienceMultiplier;
 	}
 	
-    @Override
     public String toString() {
         return "Employee [name=" + name + ", total sales=" + totalSales + ", sales period=" + salesPeriod + ", exp multiplier=" + experienceMultiplier + "]";
     }
 
-	//uem = useExperienceMultiplier
+	/*
+	 * Calculate the score for each employee
+	 * uem = useExperienceMultiplier
+	 */
 	@Override
 	public double calculateScore(boolean uem) {
 		
@@ -33,16 +36,23 @@ public class SalesEmployee implements Employee {
 		return score;
 	}
 
+	/*
+	 * This method determines if the employee will be added to the Result report
+	 * flag should come from checkConditions method
+	 */
+	public boolean addEmployeeToReport(boolean flag) {
+		
+		return this.addToReport = flag;
+	}
+	
 	@Override
 	public int getTotalSales() {
-		// TODO Auto-generated method stub
-		return 0;
+		return totalSales;
 	}
 
 	@Override
 	public void setTotalSales(int totalSales) {
-		// TODO Auto-generated method stub
-		
+		this.totalSales = totalSales;
 	}
 
 	@Override

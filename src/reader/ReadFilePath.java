@@ -1,8 +1,8 @@
-package reports;
+package reader;
 
 import java.util.Scanner;
 
-public class ReadFile {
+public class ReadFilePath {
 
 	/* 
 	 * This method takes user input from console

@@ -1,65 +1,64 @@
 package reports;
 
 import employees.*;
+import reader.*;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
 public class Main {
 
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws Exception {
 		
+		//define arraylist to store the data that will be included in the result csv file
 		List<String[]> dataLines = new ArrayList<>();
 		
+		//Enter paths to Report definition file and Employee data file
 		System.out.println("Enter path to JSON data file");
-		String dataFile = ReadFile.readFilePathFromConsole();
-		//String dataFile = "C:\\Users\\dell\\Desktop\\data file.json";
+		//String employeeDataFile = ReadFilePath.readFilePathFromConsole();
+		String employeeDataFile = "C:\\Users\\dell\\eclipse-workspace\\Performance reports\\data file.json";
 		
 		System.out.println("Enter path to JSON report definition file");
-		String reportDefFile = ReadFile.readFilePathFromConsole();
-		//String reportDefFile = "C:\\Users\\dell\\Desktop\\report definition file.json";
+		//String reportDefFile = ReadFilePath.readFilePathFromConsole();
+		String reportDefFile = "C:\\Users\\dell\\eclipse-workspace\\Performance reports\\report definition file.json";
 		
-		GsonBuilder gsonBuilder = new GsonBuilder();
-		Gson gson = gsonBuilder.create();
+		//Define gson object to parse json data to Employee and Report objects
+		Gson gson = new Gson();
 		
 		//read the json report definition file and create report object
-		JSONreportReader reportReader = new JSONreportReader(reportDefFile);
-		String reader = reportReader.readJson();
-		Report reportConditions = gson.fromJson(reader, Report.class);
+		String reportDefinition = ReadFileContent.readJsonContent(reportDefFile);
+		PerformanceReport reportData = gson.fromJson(reportDefinition, PerformanceReport.class);
 		
-		//read the json employee data file
-		JSONreportReader jsonDataFileReader = new JSONreportReader(dataFile);
-		String employeeFileInfo = jsonDataFileReader.readJson();
-		//System.out.println("employee info" + employeeFileInfo);
+		//create list from Sales Employees to store data for all employees from the file
+		List<SalesEmployee> list = new ArrayList<SalesEmployee>();
 		
-		List<SalesEmployee> list = new ArrayList();
+		//read the json employee data file and create employees objects
+		String employeeData = ReadFileContent.readJsonContent(employeeDataFile);
 		
-		SalesEmployee[] array = gson.fromJson(employeeFileInfo, SalesEmployee[].class);
-			for(SalesEmployee empl : array) {
-				//System.out.println(empl);
-				list.add(empl);
-			}
-				
+		SalesEmployee[] array = gson.fromJson(employeeData, SalesEmployee[].class);
+		for(SalesEmployee empl : array) {
+			//System.out.println(empl);
+			list.add(empl);
+		}
+		
 		//calculate scores for each employee
-		list.forEach(employee -> ((SalesEmployee) employee).calculateScore(reportConditions.useExperienceMultiplier));
+		list.forEach(employee -> ((SalesEmployee) employee).calculateScore(reportData.useExperienceMultiplier));
 		
-		boolean addToReport = false; //this variable is used as decision which record will go into the results file
-				
 		//check does each employee meet the conditions to be added to the report
 		//if yes -> add that employee
+		boolean addToReport; //this variable is used as decision which record will go into the results file
+		//TODO: addToReport variable should be replaced with addToReport method
 		for (SalesEmployee i : list) { 
-			addToReport = reportConditions.checkConditions(i.getSalesPeriod(), i.getScore());
-		  
+			addToReport = reportData.checkConditions(i.getSalesPeriod(), i.getScore());
+
 			if (addToReport == true) { 
 				dataLines.add(new String[] {
 						i.getName(), Double.toString(i.getScore()) });
 			}
 		}
-		 		
+		
 		GenerateCSV fileToBeGenerated = new GenerateCSV(dataLines);
 		fileToBeGenerated.generateCSVFile();
 		
